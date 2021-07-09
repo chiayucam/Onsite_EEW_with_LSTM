@@ -15,16 +15,18 @@ def data_preprocess(acc, sosfilter):
         return np.reshape(waveform, (1, waveform.shape[0], waveform.shape[1]))
 
 def browse_file():
-    filename = tk.filedialog.askopenfilename(initialdir = "./input/",
-                                             title = "Select a File",
-                                             filetypes = (("Numpy files", "*.npy*"), ("all files","*.*")))
+    filename = tk.filedialog.askopenfilename(initialdir="./input/",
+                                             title="Select a File",
+                                             filetypes=[("Numpy Files", "*.npy*"), ("All Files","*.*")])
     acc = np.load(filename)
     time_length = int(acc.shape[0]/100)
     file_label.config(text=filename)
     scale.config(state="normal", to=time_length)
     time_window_spinbox.config(state="normal", to=time_length)
     plot_button.config(state="normal")
+    save_button.config(state="normal")
     plot_fig1(acc)
+
     
 def change_start_time(event=None):
     ax = fig1.gca()
@@ -48,7 +50,7 @@ def plot_fig1(acc):
     ax.add_patch(rect)
     canvas1.draw()
     
-def plot_fig2():
+def plot_fig2(savefile_boolean):
     time_window = int(time_window_spinbox.get())
     start_time = scale.get()
     acc = np.load(file_label["text"])[start_time*100:start_time*100+time_window*100,:]
@@ -81,6 +83,11 @@ def plot_fig2():
     fig2.subplots_adjust(hspace=0.07)
     canvas2.draw()
 
+    if savefile_boolean:
+        filename = tk.filedialog.asksaveasfilename(title="Save file as", filetypes=[("PNG Image", "*.png"), ("JPG Image", "*.jpg")])
+        if filename:
+            fig2.savefig(filename)
+
 testing_model = 'L5U2B512Onadam'
 # load model
 model = load_model('./'+testing_model+'.h5')
@@ -90,20 +97,38 @@ window = tk.Tk()
 window.title("Onsite EEW with LSTM")
 file_label = tk.Label(window, text="", width=100, height=2, fg="black")
 file_label.pack()
-file_button = tk.Button(window, text="Open file", command=browse_file)
-file_button.pack()
 
-scale = tk.Scale(window, orient=tk.HORIZONTAL, length=200, command=change_start_time)
-scale.config(state="disabled")
-scale.pack()
+div1 = tk.Frame(window)
+div1.pack()
 
-time_window_spinbox = tk.Spinbox(window, from_=1, to=15, command=change_time_window)
-time_window_spinbox.config(state="disabled")
-time_window_spinbox.pack()
+file_button = tk.Button(div1, text="Open file", command=browse_file)
+file_button.pack(side="left")
 
-plot_button = tk.Button(window, text="Plot figure", command=plot_fig2)
+plot_button = tk.Button(div1, text="Plot figure", command=lambda : plot_fig2(False))
 plot_button.config(state="disabled")
-plot_button.pack()
+plot_button.pack(side="left")
+
+save_button = tk.Button(div1, text="Save figure", command=lambda : plot_fig2(True))
+save_button.config(state="disable")
+save_button.pack(side="right")
+
+div2 = tk.Frame(window)
+div2.pack()
+
+scale_label = tk.Label(div2, text="start time:")
+scale_label.grid(column=0, row=0)
+
+scale = tk.Scale(div2, orient=tk.HORIZONTAL, length=200, command=change_start_time)
+scale.config(state="disabled")
+scale.grid(column=1, row=0)
+
+time_window_label = tk.Label(div2, text="time window:")
+time_window_label.grid(column=0, row=1)
+
+time_window_spinbox = tk.Spinbox(div2, from_=1, to=15, command=change_time_window)
+time_window_spinbox.config(state="disabled")
+time_window_spinbox.grid(column=1, row=1)
+
 
 fig1 = plt.figure(figsize=(12,1.5))
 plt.rcParams['axes.labelsize'] = 18
