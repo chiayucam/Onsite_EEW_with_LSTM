@@ -17,6 +17,7 @@ def browse_file():
     file_label.config(text=filename)
     plot_button.config(state="normal")
     save_button.config(state="normal")
+    animation_speed_spinbox.config(state="normal")
     
 def plot_fig(savefile_boolean):
     def data_preprocess(acc, sosfilter):
@@ -150,6 +151,7 @@ sosfilter = iirfilter(4, 0.075, btype="highpass", output="sos", fs=100)
 
 window = tk.Tk()
 window.title("Onsite EEW with LSTM")
+window.iconbitmap("./icon.ico")
 window.geometry("1000x900")
 file_label = tk.Label(window, text="", width=100, height=2, fg="black")
 file_label.pack()
@@ -167,6 +169,16 @@ plot_button.pack(side="left")
 save_button = tk.Button(div1, text="Save animation", command=lambda : plot_fig(True))
 save_button.config(state="disable")
 save_button.pack(side="right")
+
+div2 = tk.Frame(window)
+div2.pack()
+
+animation_speed_label = tk.Label(div2, text="Animation speed")
+animation_speed_label.pack(side="left")
+
+animation_speed_spinbox = tk.Spinbox(div2, from_=1, to=3, width=3)
+animation_speed_spinbox.config(state="disabled")
+animation_speed_spinbox.pack(side="right")
 
 
 fig = plt.figure(figsize=(12,12))

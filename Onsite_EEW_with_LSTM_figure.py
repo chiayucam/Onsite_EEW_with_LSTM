@@ -95,6 +95,7 @@ sosfilter = iirfilter(4, 0.075, btype="highpass", output="sos", fs=100)
 
 window = tk.Tk()
 window.title("Onsite EEW with LSTM")
+window.iconbitmap("./icon.ico")
 file_label = tk.Label(window, text="", width=100, height=2, fg="black")
 file_label.pack()
 
